@@ -16,11 +16,57 @@ let polyline // La polyline en cours de construction;
 
 const polylineMachine = createMachine(
     {
-        /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgAcsAbATwBkBLDMfEI2SgF0qwzoA9EBaANnVI9eAOgAM4iZMkB2ZGnokK1MMMoRitJAsYs2nRABYATAMQAOAIzCD0gJwXetgwGZezgw9ty5QA */
+        /** @xstate-layout N4IgpgJg5mDOIC5QAcD2AbAngGQJYDswA6XCdMAYgFkB5AVQGUBRAYWwEkWBpAbQAYAuohSpYuAC65U+YSAAeiALQBGAMwAmABxFlANn0AWAOwH1uzQFYjRgDQhMSjUaIHdBgJx9d7g3z5G+dQsAX2C7NCw8QiIAEQAlAEEAdXYAOQBxanpmWgA1Jn4hJBA0MUlpWQUEFXU9Il0+TT9dNQtVdyMLOwdq5VN6g2ULPlULTR8jVSNQ8IwcAmJ45LTM2kZWDm5C2VKJKRliqpUR9SIjJvbvTQNB0e6lCwtlIievbxHXdS+ZkrmoxcSKQyWXWbE4vGURREZX2lSUaiM7hcPi8yiaeha6nu1Uez1eukRAUaamUPwi82iSyBmQAQgBDADGAGtYMhGWBtsVduUDqAjso-M8vmivAZHup3Mp3NiVFKiJKPO0PF9agZNGS-gtYoCVhQmLAGXTkBzBDtRHsKod4aM+EQ+D4nkZdKpvBpdDKDO07e5NMp1Ko+E8-ZMNZEtVTdUx8OIwAAnTnQi28+RKTQBu3qXzqPiDAUtVQy9QBeUjPpptyZyyhMIgfCoCBwM1hwhmmGWvnw4zOZQmINqTxumXOpF8PPWIxBbM90MU4ikcitpNw3qmJE9sXKTftE7u+zwpp2gMtCxmDcTkI18n-bXLDKLnnL44+Igu-wtZ2i5QygMGM6qNOmJoDSvDc1bBEAA */
         id: "polyLine",
+
         initial: "idle",
+
         states : {
             idle: {
+                on: {
+                    MOUSECLICK: {
+                        target: "DRAWING",
+                        actions: "createLine"
+                    }
+                }
+            },
+
+            DRAWING: {
+                on: {
+                    MOUSEMOVE: {
+                        target: "DRAWING",
+                        actions: "setLastPoint",
+                        internal: true
+                    },
+
+                    MOUSECLICK: [{
+                        target: "DRAWING",
+                        internal: true,
+                        actions: ["addPoint"],
+                        cond: "pasPlein"
+                    }, {
+                        target: "idle",
+                        actions: "saveLine"
+                    }],
+
+                    Backspace: {
+                        target: "DRAWING",
+                        cond: "plusDeDeuxPoints",
+                        actions: "removeLastPoint",
+                        internal: true
+                    },
+
+                    Escape: {
+                        target: "idle",
+                        actions: "abandon"
+                    },
+
+                    Enter: {
+                        target: "idle",
+                        actions: "saveLine",
+                        cond: "plusDeDeuxPoints"
+                    }
+                }
             }
         }
     },
